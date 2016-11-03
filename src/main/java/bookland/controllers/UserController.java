@@ -11,12 +11,24 @@ import bookland.models.User;
 import bookland.models.UserDao;
 
 @Controller
-@RequestMapping("/user")
+@RequestMapping("/api/user")
 public class UserController {
 
 	@Autowired
 	private UserDao userDao;
 
+	@RequestMapping("")
+	@ResponseBody
+	public Object getUser(long id){
+		User user;
+		try{
+			user = userDao.findById(id);
+			return new ResponseEntity<>(user,HttpStatus.OK);
+		}catch(Exception ex){
+			return new ResponseEntity<>(ex,HttpStatus.NOT_FOUND);
+		}
+	}
+	
 	@RequestMapping("/create")
 	@ResponseBody
 	public String create(String email, String username, String password) {

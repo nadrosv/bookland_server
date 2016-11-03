@@ -18,10 +18,10 @@ public class Book {
 	private long id;
 
 	@NotNull
-	private long ownerID;
+	private long ownerId;
 	
 	@NotNull
-	private long userID;
+	private long userId;
 
 	@NotNull
 	private String title;
@@ -30,9 +30,9 @@ public class Book {
 	private String author;
 
 
-	public Book(long ownerID, String title, String author) {
-		this.ownerID = ownerID;
-		this.userID = ownerID;
+	public Book(long ownerId, String title, String author) {
+		this.ownerId = ownerId;
+		this.userId = ownerId;
 		this.title = title;
 		this.author = author;
 	}
@@ -68,20 +68,20 @@ public class Book {
 		this.author = author;
 	}
 
-	public long getOwnerID() {
-		return ownerID;
+	public long getOwnerId() {
+		return ownerId;
 	}
 
-	public void setOwnerID(long ownerID) {
-		this.ownerID = ownerID;
+	public void setOwnerId(long ownerId) {
+		this.ownerId = ownerId;
 	}
 
-	public long getUserID() {
-		return userID;
+	public long getUserId() {
+		return userId;
 	}
 
-	public void setUserID(long userID) {
-		this.userID = userID;
+	public void setUserId(long userId) {
+		this.userId = userId;
 	}
 
 

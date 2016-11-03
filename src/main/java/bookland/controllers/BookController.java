@@ -13,7 +13,7 @@ import bookland.models.Book;
 import bookland.models.BookDao;
 
 @Controller
-@RequestMapping("/book")
+@RequestMapping("/api/book")
 public class BookController {
 
 	@Autowired
@@ -21,16 +21,15 @@ public class BookController {
 
 	@RequestMapping("/create")
 	@ResponseBody
-	public Object create(long ownerID, String title, String author) {
+	public Object create(long ownerId, String title, String author) {
 		Book book = null;
 		try {
-			book = new Book(ownerID, title, author);
+			book = new Book(ownerId, title, author);
 			bookDao.save(book);
 			return book;
 		} catch (Exception ex) {
-			return "Error creating the user: " + ex.toString();
+			return "Error creating the Book: " + ex.toString();
 		}
-//		return "User succesfully created! (id = " + book.getId() + ")";
 	}
 
 	@RequestMapping("/delete")
@@ -45,17 +44,32 @@ public class BookController {
 		return "Book succesfully deleted!";
 	}
 
+	@RequestMapping("/update")
+	@ResponseBody
+	public Object updateBook(long id, String title, String author, long userId) {
+		try {
+			Book book = bookDao.findOne(id);
+			book.setTitle(title);
+			book.setAuthor(author);
+			book.setUserId(userId);
+			bookDao.save(book);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+		}
+	}
+
 	@RequestMapping("/user")
 	@ResponseBody
-	public Object getByUserId(long id) {
-		List<Book> book;
+	public Object getByOwnerId(long id) {
+//		List<Book> book;
 		try {
-			book = bookDao.findByOwnerID(id);
-			return new ResponseEntity<>(book, HttpStatus.OK);
+			List<Book> books = bookDao.findByOwnerId(id);
+//			return new ResponseEntity<>(books, HttpStatus.OK);
+			return books;
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
-		// return new ResponseEntity<>(book, HttpStatus.OK);
 	}
 
 	@RequestMapping("")
@@ -67,7 +81,6 @@ public class BookController {
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
-		// return new ResponseEntity<>(book, HttpStatus.OK);
 	}
 
 	@RequestMapping("/all")
@@ -79,6 +92,5 @@ public class BookController {
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
-		// return new ResponseEntity<>(book, HttpStatus.OK);
 	}
 }

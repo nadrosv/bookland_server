@@ -22,26 +22,25 @@ public class BookController {
 	@RequestMapping("/create")
 	@ResponseBody
 	public Object create(long ownerId, String title, String author) {
-		Book book = null;
 		try {
-			book = new Book(ownerId, title, author);
+			Book book = new Book(ownerId, title, author);
 			bookDao.save(book);
-			return book;
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			return "Error creating the Book: " + ex.toString();
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@RequestMapping("/delete")
 	@ResponseBody
-	public String delete(long id) {
+	public Object delete(long id) {
 		try {
 			Book book = new Book(id);
 			bookDao.delete(book);
+			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			return "Error deleting the user: " + ex.toString();
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
-		return "Book succesfully deleted!";
 	}
 
 	@RequestMapping("/update")
@@ -62,11 +61,9 @@ public class BookController {
 	@RequestMapping("/user")
 	@ResponseBody
 	public Object getByOwnerId(long id) {
-//		List<Book> book;
 		try {
 			List<Book> books = bookDao.findByOwnerId(id);
-//			return new ResponseEntity<>(books, HttpStatus.OK);
-			return books;
+			return new ResponseEntity<>(books, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}

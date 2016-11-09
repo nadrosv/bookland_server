@@ -36,9 +36,8 @@ public class MainController {
 			} else{
 				return new ResponseEntity<>(user.getPassword(),HttpStatus.BAD_REQUEST);
 			}
-			// return new ResponseEntity<>(user,HttpStatus.OK);
 		} catch (Exception ex) {
-			return "Error occured: " + ex.toString();
+			return new ResponseEntity<>(ex, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

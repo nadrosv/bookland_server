@@ -7,8 +7,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import bookland.dao.UserDao;
 import bookland.models.User;
-import bookland.models.UserDao;
 
 @Controller
 @RequestMapping("/api/user")

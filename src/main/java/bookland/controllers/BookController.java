@@ -9,8 +9,8 @@ import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
+import bookland.dao.BookDao;
 import bookland.models.Book;
-import bookland.models.BookDao;
 
 @Controller
 @RequestMapping("/api/book")

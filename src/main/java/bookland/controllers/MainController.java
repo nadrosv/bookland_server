@@ -8,8 +8,8 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 import org.springframework.web.bind.annotation.RestController;
 
+import bookland.dao.UserDao;
 import bookland.models.User;
-import bookland.models.UserDao;
 
 @RestController
 public class MainController {
@@ -32,13 +32,22 @@ public class MainController {
 			if (user == null) {
 				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 			} else if (user.getPassword().equals(password)) {
-				return new ResponseEntity<>(user, HttpStatus.OK);
-			} else{
-				return new ResponseEntity<>(user.getPassword(),HttpStatus.BAD_REQUEST);
+//				String token = TokenService.createJWT("xxx", "Bookland", "req", 3600000);
+//				return new ResponseEntity<>(token, HttpStatus.OK);
+				 return new ResponseEntity<>(user, HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 			}
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+
+//	@RequestMapping(path = "/tokentest", method = RequestMethod.POST)
+//	@ResponseBody
+//	public Object fakeAuth(String token) {
+//		String decode = TokenService.parseJWT(token);
+//		return decode;
+//	}
 
 }

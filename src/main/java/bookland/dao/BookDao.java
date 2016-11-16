@@ -1,10 +1,12 @@
-package bookland.models;
+package bookland.dao;
 
 import java.util.List;
 
 import javax.transaction.Transactional;
 
 import org.springframework.data.repository.CrudRepository;
+
+import bookland.models.Book;
 
 
 @Transactional

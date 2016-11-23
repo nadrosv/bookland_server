@@ -1,6 +1,7 @@
 package bookland.controllers;
 
 import java.util.Date;
+import java.util.List;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -28,7 +29,29 @@ public class TransactionController {
 
 	@Autowired
 	private BookDao bookDao;
+	
+	@RequestMapping("/all")
+	@ResponseBody
+	public Object getAll(long userId){
+		try {
+			List<Transaction> trans = transDao.findByUser(userId);
+			return new ResponseEntity<>(trans, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
 
+	@RequestMapping("/get")
+	@ResponseBody
+	public Object get(long transId){
+		try {
+			Transaction trans = transDao.findById(transId);
+			return new ResponseEntity<>(trans, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+	
 	@RequestMapping("/init")
 	@ResponseBody
 	public Object init(long bookId, long userId) {
@@ -65,6 +88,10 @@ public class TransactionController {
 			trans.setStatus(3);
 			trans.setBegDate(today);
 			transDao.save(trans);
+			
+			Book book = bookDao.findById(trans.getBookId());
+			book.setUserId(trans.getUserId());
+			bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -78,6 +105,10 @@ public class TransactionController {
 			Transaction trans = transDao.findById(transId);
 			trans.setStatus(4);
 			transDao.save(trans);
+			
+			Book book = bookDao.findById(trans.getBookId());
+			book.setUserId(trans.getOwnerId());
+			bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);

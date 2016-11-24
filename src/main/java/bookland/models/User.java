@@ -65,6 +65,14 @@ public class User {
 		return id;
 	}
 
+	public void vote(int rate) {
+		if (rate != 0) {
+			setRatePos(getRatePos() + 1);
+		} else {
+			setRateNeg(getRateNeg() + 1);
+		}
+	}
+
 	public void setId(long value) {
 		this.id = value;
 	}

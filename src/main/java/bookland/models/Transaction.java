@@ -8,6 +8,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "transactions")
@@ -34,6 +35,14 @@ public class Transaction {
 
 	@Column(name = "end_date")
 	private Date endDate;
+	
+	@NotNull
+	@Column(name = "owner_rate")
+	private int ownerRate;
+
+	@NotNull
+	@Column(name = "user_rate")
+	private int userRate;
 
 	@Column(name = "owner_summary")
 	private String ownerSummary;
@@ -55,6 +64,8 @@ public class Transaction {
 		this.ownerSummary = null;
 		this.userSummary = null;
 		this.messaging = false;
+		this.ownerRate = 1;
+		this.ownerRate = 1;
 	}
 
 	public Transaction(long id) {
@@ -119,6 +130,22 @@ public class Transaction {
 
 	public void setEndDate(Date endDate) {
 		this.endDate = endDate;
+	}
+
+	public int getOwnerRate() {
+		return ownerRate;
+	}
+
+	public void setOwnerRate(int ownerRate) {
+		this.ownerRate = ownerRate;
+	}
+
+	public int getUserRate() {
+		return userRate;
+	}
+
+	public void setUserRate(int userRate) {
+		this.userRate = userRate;
 	}
 
 	public String getOwnerSummary() {

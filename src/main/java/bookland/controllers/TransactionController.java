@@ -13,9 +13,11 @@ import org.springframework.web.bind.annotation.ResponseBody;
 import bookland.dao.BookDao;
 import bookland.dao.MessageDao;
 import bookland.dao.TransactionDao;
+import bookland.dao.UserDao;
 import bookland.models.Book;
 import bookland.models.Message;
 import bookland.models.Transaction;
+import bookland.models.User;
 
 @Controller
 @RequestMapping("/api/trans")
@@ -29,6 +31,9 @@ public class TransactionController {
 
 	@Autowired
 	private BookDao bookDao;
+	
+	@Autowired
+	private UserDao userDao;
 	
 	@RequestMapping("/all")
 	@ResponseBody
@@ -48,7 +53,7 @@ public class TransactionController {
 			Transaction trans = transDao.findById(transId);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
 	}
 	
@@ -61,7 +66,7 @@ public class TransactionController {
 			transDao.save(trans);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -117,16 +122,22 @@ public class TransactionController {
 
 	@RequestMapping("/close")
 	@ResponseBody
-	public Object finalize(long transId, String feedback, boolean owner) {
+	public Object close(long transId, String feedback, int rate, boolean owner) {
 		try {
 			Transaction trans = transDao.findById(transId);
 			if (owner) {
 				trans.setOwnerSummary(feedback);
+				trans.setOwnerRate(rate);
+				User bookUser = userDao.findById(trans.getUserId());
+				bookUser.vote(rate);
 			} else {
 				trans.setUserSummary(feedback);
+				trans.setUserRate(rate);
+				User bookOwner = userDao.findById(trans.getOwnerId());
+				bookOwner.vote(rate);
 			}
-			
 			if (trans.getOwnerSummary() != null && trans.getUserSummary() != null) {
+				
 				trans.setStatus(5);
 			}
 			

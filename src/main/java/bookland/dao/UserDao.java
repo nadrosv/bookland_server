@@ -18,7 +18,7 @@ public interface UserDao extends CrudRepository<User, Long> {
   public User findById(long id);
   public User findByUsername(String name);
   
-  @Query("SELECT u FROM User u WHERE 111.195*sqrt(power(u.prefLocalLat-:lat,2)+power(cos(pi()/180*:lat)*(u.prefLocalLon-:lon),2)) < :radius")
-  public List<User> findNear(@Param("lat") double lat, @Param("lon") double lon, @Param("radius") double radius);
+  @Query("SELECT u FROM User u WHERE u.id <> :userId and 111.195*sqrt(power(u.prefLocalLat-:lat,2)+power(cos(pi()/180*:lat)*(u.prefLocalLon-:lon),2)) < :radius")
+  public List<User> findNear(@Param("userId") long userId, @Param("lat") double lat, @Param("lon") double lon, @Param("radius") double radius);
 
 }

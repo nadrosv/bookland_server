@@ -119,13 +119,35 @@ public class BookController {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
 	}
-
+	
+	@RequestMapping("/given")
+	@ResponseBody
+	public Object findGiven(long userId) {
+		try {
+			List<Book> books = bookDao.findGiven(userId);
+			return new ResponseEntity<>(books, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
+		}
+	}
+	
+	@RequestMapping("/taken")
+	@ResponseBody
+	public Object findTaken(long userId) {
+		try {
+			List<Book> books = bookDao.findTaken(userId);
+			return new ResponseEntity<>(books, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
+		}
+	}
+	
 	@RequestMapping("/near")
 	@ResponseBody
 	public Object findNearByKeyword(long userId, String keyWord) {
 		try {
 			User user = userDao.findById(userId);
-			List<User> nearUsers = userDao.findNear(user.getPrefLocalLat(), user.getPrefLocalLon(),
+			List<User> nearUsers = userDao.findNear(user.getId(), user.getPrefLocalLat(), user.getPrefLocalLon(),
 					user.getPrefLocalRadius());
 			List<Long> usersId = nearUsers.stream().map(User::getId).collect(Collectors.toList());
 			List<Book> books = bookDao.findNearByKeyWord(userId, usersId, keyWord);

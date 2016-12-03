@@ -23,7 +23,7 @@ public class Message {
 	@Column(name = "sender_id")
 	private long senderId;
 
-	@Column(name = "send_time")
+	@Column(name = "send_time", columnDefinition="DATETIME")
 	private Date sendTime;
 
 	@Column(name = "message")

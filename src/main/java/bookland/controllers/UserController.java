@@ -1,5 +1,8 @@
 package bookland.controllers;
 
+import java.util.List;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -8,6 +11,7 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import bookland.dao.UserDao;
+import bookland.models.NearUser;
 import bookland.models.User;
 
 @Controller
@@ -35,9 +39,9 @@ public class UserController {
 		try {
 			User user = new User(email, username, password);
 			userDao.save(user);
-			return new ResponseEntity<>(user,HttpStatus.OK);
+			return new ResponseEntity<>(user, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Error creating the user: " + ex,HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>("Error creating the user: " + ex, HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -49,7 +53,7 @@ public class UserController {
 			userDao.delete(user);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Error deleting the user: " + ex,HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>("Error deleting the user: " + ex, HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -58,10 +62,24 @@ public class UserController {
 	public Object getByEmail(String email) {
 		try {
 			User user = userDao.findByEmail(email);
-			return new ResponseEntity<>(user,HttpStatus.OK);
+			return new ResponseEntity<>(user, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex,HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 
+		}
+	}
+	
+	@RequestMapping("/near")
+	@ResponseBody
+	public Object findNearByKeyword(long userId, String keyWord) {
+		try {
+			User user = userDao.findById(userId);
+			List<User> nearUsers = userDao.findNear(user.getId(), user.getPrefLocalLat(), user.getPrefLocalLon(),
+					user.getPrefLocalRadius());
+			List<NearUser> users = nearUsers.stream().map(p -> new NearUser(p.getId(), p.getUsername())).collect(Collectors.toList());
+			return new ResponseEntity<>(users, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -75,7 +93,7 @@ public class UserController {
 			userDao.save(user);
 			return new ResponseEntity<>(user, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Error updating the user: " + ex,HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>("Error updating the user: " + ex, HttpStatus.NOT_FOUND);
 		}
 	}
 
@@ -91,7 +109,7 @@ public class UserController {
 			return new ResponseEntity<>(HttpStatus.OK);
 
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Error deletupdating the user: " + ex,HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>("Error deletupdating the user: " + ex, HttpStatus.NOT_FOUND);
 
 		}
 	}

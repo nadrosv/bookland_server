@@ -17,7 +17,12 @@ public interface BookDao extends CrudRepository<Book, Long> {
 
 	public List<Book> findByAuthorContaining(String author);
 
-
+	@Query("select b from Book b where b.ownerId = :userId and b.userId <> :userId")
+	public List<Book> findGiven(@Param("userId") long userId);
+	
+	@Query("select b from Book b where b.ownerId <> :userId and b.userId = :userId")
+	public List<Book> findTaken(@Param("userId") long userId);
+	
 	@Query("select b from Book b where (b.title like %:keyword% or b.author like %:keyword%) and b.ownerId=b.userId and b.ownerId in :usersId and b.ownerId <> :id")
 	public List<Book> findNearByKeyWord(@Param("id") long id, @Param("usersId") List<Long> usersId,
 			@Param("keyword") String keyword);

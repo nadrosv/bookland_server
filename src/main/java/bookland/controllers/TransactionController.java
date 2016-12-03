@@ -164,13 +164,23 @@ public class TransactionController {
 	@ResponseBody
 	public Object contact(long transId, long userId, String message) {
 		try {
-			Date today = new Date();
-			Message mess = new Message(transId, userId, today, message);
+			Date now = new Date();
+			Message mess = new Message(transId, userId, now, message);
 			messDao.save(mess);
 			return new ResponseEntity<>(mess, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
 	}
-
+	
+	@RequestMapping("/messages")
+	@ResponseBody
+	public Object contact(long transId) {
+		try {
+			List<Message> messages = messDao.findByTransId(transId);
+			return new ResponseEntity<>(messages, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+		}
+	}
 }

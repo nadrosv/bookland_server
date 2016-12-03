@@ -37,7 +37,7 @@ public class MainController {
 
 	@SuppressWarnings("unused")
 	private static class UserLogin {
-		public String name;
+		public String username;
 		public String password;
 		public String email;
 	}
@@ -54,26 +54,30 @@ public class MainController {
 	}
 
 	@RequestMapping(value = "login", method = RequestMethod.POST)
-	public LoginResponse login(@RequestBody final UserLogin login) throws ServletException {
-		User user = userDao.findByUsername(login.name);
-		if (login.name == null || user == null) {
-			throw new ServletException("Invalid login");
+	public Object login(@RequestBody final UserLogin login/*String username, String password*/){
+		
+		User user = userDao.findByUsername(login.username);
+		if (login.username == null || user == null) {
+//			throw new ServletException("Invalid login");
+			return new ResponseEntity<>("Invalid login or user not found.", HttpStatus.BAD_REQUEST);
 		}
 		if (!pEncode.matches(login.password, user.getPassword())) {
-			throw new ServletException("Invalid password");
+//			throw new ServletException("Invalid password");
+			return new ResponseEntity<>("Invalid password.", HttpStatus.BAD_REQUEST);
 		}
-		return new LoginResponse(Jwts.builder().setSubject(login.name).claim("roles", user.getUsername())
+		LoginResponse res = new LoginResponse(Jwts.builder().setSubject(login.username).claim("roles", user.getUsername())
 				.setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "secretkey").compact(), user.getId());
+		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "register", method = RequestMethod.POST)
 	@ResponseBody
 	public Object fakeRegistration(@RequestBody final UserLogin reg) throws ServletException {
-		User user = userDao.findByUsername(reg.name);
+		User user = userDao.findByUsername(reg.username);
 		if (user != null) {
 			throw new ServletException("User exists");
 		}
-		user = new User(reg.email, reg.name, pEncode.encode(reg.password));
+		user = new User(reg.email, reg.username, pEncode.encode(reg.password));
 		userDao.save(user);
 		return new ResponseEntity<>(user.getId(), HttpStatus.OK);
 	}

@@ -28,6 +28,8 @@ public class Book {
 
 	@NotNull
 	private String author;
+	
+	private Integer isbn;
 
 
 	public Book(long ownerId, String title, String author) {
@@ -82,6 +84,14 @@ public class Book {
 
 	public void setUserId(long userId) {
 		this.userId = userId;
+	}
+
+	public Integer getIsbn() {
+		return isbn;
+	}
+
+	public void setIsbn(Integer isbn) {
+		this.isbn = isbn;
 	}
 
 

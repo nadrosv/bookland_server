@@ -1,7 +1,11 @@
 package bookland.controllers;
 
+import java.sql.Timestamp;
 import java.util.Date;
 import java.util.List;
+import java.util.stream.Collectors;
+
+import javax.servlet.http.HttpServletRequest;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -18,6 +22,7 @@ import bookland.models.Book;
 import bookland.models.Message;
 import bookland.models.Transaction;
 import bookland.models.User;
+import io.jsonwebtoken.Claims;
 
 @Controller
 @RequestMapping("/api/trans")
@@ -31,13 +36,13 @@ public class TransactionController {
 
 	@Autowired
 	private BookDao bookDao;
-	
+
 	@Autowired
 	private UserDao userDao;
-	
+
 	@RequestMapping("/all")
 	@ResponseBody
-	public Object getAll(long userId){
+	public Object getAll(long userId) {
 		try {
 			List<Transaction> trans = transDao.findByUser(userId);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
@@ -48,7 +53,7 @@ public class TransactionController {
 
 	@RequestMapping("/get")
 	@ResponseBody
-	public Object get(long transId){
+	public Object get(long transId) {
 		try {
 			Transaction trans = transDao.findById(transId);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
@@ -56,7 +61,7 @@ public class TransactionController {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
 	}
-	
+
 	@RequestMapping("/init")
 	@ResponseBody
 	public Object init(long bookId, long userId) {
@@ -93,7 +98,7 @@ public class TransactionController {
 			trans.setStatus(3);
 			trans.setBegDate(today);
 			transDao.save(trans);
-			
+
 			Book book = bookDao.findById(trans.getBookId());
 			book.setUserId(trans.getUserId());
 			bookDao.save(book);
@@ -110,7 +115,7 @@ public class TransactionController {
 			Transaction trans = transDao.findById(transId);
 			trans.setStatus(4);
 			transDao.save(trans);
-			
+
 			Book book = bookDao.findById(trans.getBookId());
 			book.setUserId(trans.getOwnerId());
 			bookDao.save(book);
@@ -137,10 +142,10 @@ public class TransactionController {
 				bookOwner.vote(rate);
 			}
 			if (trans.getOwnerSummary() != null && trans.getUserSummary() != null) {
-				
+
 				trans.setStatus(5);
 			}
-			
+
 			transDao.save(trans);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
@@ -164,7 +169,7 @@ public class TransactionController {
 	@ResponseBody
 	public Object contact(long transId, long userId, String message) {
 		try {
-			Date now = new Date();
+			Timestamp now = new Timestamp(System.currentTimeMillis());
 			Message mess = new Message(transId, userId, now, message);
 			messDao.save(mess);
 			return new ResponseEntity<>(mess, HttpStatus.OK);
@@ -172,13 +177,32 @@ public class TransactionController {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
 	}
-	
+
 	@RequestMapping("/messages")
 	@ResponseBody
 	public Object contact(long transId) {
 		try {
 			List<Message> messages = messDao.findByTransId(transId);
 			return new ResponseEntity<>(messages, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@RequestMapping("/news")
+	@ResponseBody
+	public Object news(HttpServletRequest request, Timestamp time) {
+		try {
+			Long userId = new Long((String) ((Claims) request.getAttribute("claims")).getSubject());
+			List<Transaction> transs = transDao.findByUser(userId);
+			List<Message> mess = null;
+			
+			if (!transs.isEmpty()) {
+				List<Long> transIds = transs.stream().map(Transaction::getId).collect(Collectors.toList());
+				mess = messDao.findNew(userId, transIds, time);
+			}
+
+			return new ResponseEntity<>(mess, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}

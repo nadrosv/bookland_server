@@ -1,5 +1,6 @@
 package bookland.models;
 
+import java.sql.Timestamp;
 import java.util.Date;
 
 import javax.persistence.Column;
@@ -22,14 +23,14 @@ public class Message {
 
 	@Column(name = "sender_id")
 	private long senderId;
-
-	@Column(name = "send_time", columnDefinition="DATETIME")
-	private Date sendTime;
+	
+	@Column(name = "send_time")
+	private Timestamp sendTime;
 
 	@Column(name = "message")
 	private String message;
 
-	public Message(long transId, long senderId, Date sendTime, String message) {
+	public Message(long transId, long senderId, Timestamp sendTime, String message) {
 		super();
 		this.transId = transId;
 		this.senderId = senderId;
@@ -69,11 +70,11 @@ public class Message {
 		this.senderId = senderId;
 	}
 
-	public Date getSendTime() {
+	public Timestamp getSendTime() {
 		return sendTime;
 	}
 
-	public void setSendTime(Date sendTime) {
+	public void setSendTime(Timestamp sendTime) {
 		this.sendTime = sendTime;
 	}
 

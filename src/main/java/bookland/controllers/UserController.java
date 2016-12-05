@@ -3,16 +3,20 @@ package bookland.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import bookland.dao.UserDao;
 import bookland.models.NearUser;
 import bookland.models.User;
+import io.jsonwebtoken.Claims;
 
 @Controller
 @RequestMapping("/api/user")
@@ -68,22 +72,23 @@ public class UserController {
 
 		}
 	}
-	
+
 	@RequestMapping("/near")
 	@ResponseBody
-	public Object findNearByKeyword(long userId, String keyWord) {
+	public Object findNear(long userId) {
 		try {
 			User user = userDao.findById(userId);
 			List<User> nearUsers = userDao.findNear(user.getId(), user.getPrefLocalLat(), user.getPrefLocalLon(),
 					user.getPrefLocalRadius());
-			List<NearUser> users = nearUsers.stream().map(p -> new NearUser(p.getId(), p.getUsername())).collect(Collectors.toList());
+			List<NearUser> users = nearUsers.stream().map(p -> new NearUser(p.getId(), p.getUsername()))
+					.collect(Collectors.toList());
 			return new ResponseEntity<>(users, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
 	}
 
-	@RequestMapping("/update")
+	@RequestMapping(value = "/update", method = RequestMethod.PUT)
 	@ResponseBody
 	public Object updateAccount(long id, String email, String name) {
 		try {
@@ -97,9 +102,9 @@ public class UserController {
 		}
 	}
 
-	@RequestMapping("/prefs/local")
+	@RequestMapping(value = "/prefs/local", method = RequestMethod.PUT)
 	@ResponseBody
-	public Object setPrefsLocal(long id, int radius, double lon, double lat) {
+	public Object setPrefsLocal(long id, double radius, double lon, double lat) {
 		try {
 			User user = userDao.findOne(id);
 			user.setPrefLocalRadius(radius);
@@ -111,6 +116,19 @@ public class UserController {
 		} catch (Exception ex) {
 			return new ResponseEntity<>("Error deletupdating the user: " + ex, HttpStatus.NOT_FOUND);
 
+		}
+	}
+
+	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	@ResponseBody
+	public Object getId(final HttpServletRequest request) {
+		try {
+			Long userId = new Long((String) ((Claims) request.getAttribute("claims")).getSubject());
+
+			User user = userDao.findById(userId);
+			return new ResponseEntity<>(user, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>("Some error occured: " + ex, HttpStatus.NOT_FOUND);
 		}
 	}
 }

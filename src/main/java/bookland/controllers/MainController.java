@@ -54,18 +54,16 @@ public class MainController {
 	}
 
 	@RequestMapping(value = "login", method = RequestMethod.POST)
-	public Object login(@RequestBody final UserLogin login/*String username, String password*/){
+	public Object login(@RequestBody final UserLogin login){
 		
 		User user = userDao.findByUsername(login.username);
 		if (login.username == null || user == null) {
-//			throw new ServletException("Invalid login");
 			return new ResponseEntity<>("Invalid login or user not found.", HttpStatus.BAD_REQUEST);
 		}
 		if (!pEncode.matches(login.password, user.getPassword())) {
-//			throw new ServletException("Invalid password");
 			return new ResponseEntity<>("Invalid password.", HttpStatus.BAD_REQUEST);
 		}
-		LoginResponse res = new LoginResponse(Jwts.builder().setSubject(login.username).claim("roles", user.getUsername())
+		LoginResponse res = new LoginResponse(Jwts.builder().setSubject(Long.toString(user.getId())).claim("roles", user.getUsername())
 				.setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "secretkey").compact(), user.getId());
 		return new ResponseEntity<>(res, HttpStatus.OK);
 	}

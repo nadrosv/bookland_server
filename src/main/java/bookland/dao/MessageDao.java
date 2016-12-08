@@ -13,7 +13,7 @@ public interface MessageDao extends CrudRepository<Message, Long> {
 	
 	public List<Message> findByTransId(long id);
 	
-	@Query("select m from Message m where m.transId in :trans and m.senderId <> :userId and m.sendTime > :time")
+	@Query("select m from Message m where m.transId in :trans and m.senderId <> :userId and m.sendTime >= :time")
 	public List<Message> findNew(@Param("userId") long userId, @Param("trans") List<Long> transIds, @Param("time") Timestamp time);
 
 }

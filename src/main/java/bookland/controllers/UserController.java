@@ -80,8 +80,8 @@ public class UserController {
 			User user = userDao.findById(userId);
 			List<User> nearUsers = userDao.findNear(user.getId(), user.getPrefLocalLat(), user.getPrefLocalLon(),
 					user.getPrefLocalRadius());
-			List<NearUser> users = nearUsers.stream().map(p -> new NearUser(p.getId(), p.getUsername()))
-					.collect(Collectors.toList());
+			List<NearUser> users = nearUsers.stream().map(p -> new NearUser(p.getId(), p.getUsername(),
+					p.getPrefLocalLat(), p.getPrefLocalLon(), p.getPrefLocalRadius())).collect(Collectors.toList());
 			return new ResponseEntity<>(users, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
@@ -131,4 +131,18 @@ public class UserController {
 			return new ResponseEntity<>("Some error occured: " + ex, HttpStatus.NOT_FOUND);
 		}
 	}
+
+//	@RequestMapping(value = "/topBookCount", method = RequestMethod.GET)
+//	@ResponseBody
+//	public Object topBookCount() {
+//		try {
+//			List<User> topusers = userDao.findTop2OrderByBookCount();
+//			List<NearUser> users = topusers.stream()
+//					.map(p -> new NearUser(p.getId(), p.getUsername(), p.getBookCount())).collect(Collectors.toList());
+//
+//			return new ResponseEntity<>(users, HttpStatus.OK);
+//		} catch (Exception ex) {
+//			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+//		}
+//	}
 }

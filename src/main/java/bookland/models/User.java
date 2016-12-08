@@ -1,5 +1,7 @@
 package bookland.models;
 
+import java.sql.Timestamp;
+
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
@@ -31,6 +33,9 @@ public class User {
 	@Column(name = "rate_neg")
 	private int rateNeg;
 
+	@Column(name = "last_update")
+	private Timestamp lastUpdate;
+
 	@Column(name = "pref_local_radius")
 	private double prefLocalRadius;
 
@@ -40,8 +45,15 @@ public class User {
 	@Column(name = "pref_local_lon")
 	private double prefLocalLon;
 
+	@Column(name = "pref_lend_time")
+	@NotNull
+	private int prefLendTime;
+
+	@Column(name = "book_count")
+	@NotNull
+	private int bookCount;
+
 	// private boolean banned;
-	// private int bookCount;
 	// private int prefLendTime;
 	// private double prefSearchRadius;
 	// private double prefSearchLat;
@@ -59,6 +71,9 @@ public class User {
 		this.email = email;
 		this.username = username;
 		this.password = password;
+		this.lastUpdate = new Timestamp(0);
+		this.prefLendTime = 30;
+		this.bookCount = 0;
 	}
 
 	public long getId() {
@@ -139,6 +154,30 @@ public class User {
 
 	public void setPrefLocalLon(double prefLocalLon) {
 		this.prefLocalLon = prefLocalLon;
+	}
+
+	public Timestamp getLastUpdate() {
+		return lastUpdate;
+	}
+
+	public void setLastUpdate(Timestamp lastUpdate) {
+		this.lastUpdate = lastUpdate;
+	}
+
+	public int getPrefLendTime() {
+		return prefLendTime;
+	}
+
+	public void setPrefLendTime(int prefLendTime) {
+		this.prefLendTime = prefLendTime;
+	}
+
+	public int getBookCount() {
+		return bookCount;
+	}
+
+	public void setBookCount(int bookCount) {
+		this.bookCount = bookCount;
 	}
 
 }

@@ -30,9 +30,12 @@ public interface BookDao extends CrudRepository<Book, Long> {
 	public Book findByTitle(String title);
 
 	public Book findById(long id);
-
+	
 	public List<Book> findAll();
 
 	public List<Book> findByOwnerId(long id);
+	
+	@Query("SELECT COUNT(b) FROM Book b WHERE b.ownerId = :userId")
+	public int bookCount(@Param("userId") Long userId);
 
 }

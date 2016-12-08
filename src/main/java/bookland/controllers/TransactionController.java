@@ -44,7 +44,18 @@ public class TransactionController {
 	@ResponseBody
 	public Object getAll(long userId) {
 		try {
-			List<Transaction> trans = transDao.findByUser(userId);
+			List<Transaction> trans = transDao.findActive(userId);
+			return new ResponseEntity<>(trans, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+		}
+	}
+
+	@RequestMapping("/history")
+	@ResponseBody
+	public Object getHistory(long userId) {
+		try {
+			List<Transaction> trans = transDao.findArchived(userId);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -66,10 +77,19 @@ public class TransactionController {
 	@ResponseBody
 	public Object init(long bookId, long userId) {
 		try {
-			Book book = bookDao.findById(bookId);
-			Transaction trans = new Transaction(book.getOwnerId(), userId, bookId);
-			transDao.save(trans);
-			return new ResponseEntity<>(trans, HttpStatus.OK);
+			Transaction check = transDao.findByUserIdAndBookId(userId, bookId);
+
+			if (check == null) {
+				Book book = bookDao.findById(bookId);
+				User owner = userDao.findById(book.getOwnerId());
+				User user = userDao.findById(userId);
+				Transaction trans = new Transaction(book.getOwnerId(), userId, bookId, owner.getUsername(),
+						user.getUsername(), book.getTitle(), book.getAuthor());
+				transDao.save(trans);
+				return new ResponseEntity<>(trans, HttpStatus.OK);
+			}else{
+				return new ResponseEntity<>(HttpStatus.OK);
+			}
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
@@ -83,6 +103,10 @@ public class TransactionController {
 			trans.setStatus(2);
 			trans.setMessaging(true);
 			transDao.save(trans);
+
+			Book book = bookDao.findById(trans.getBookId());
+			book.setUserId(trans.getUserId());
+			bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -97,11 +121,15 @@ public class TransactionController {
 			Date today = new Date();
 			trans.setStatus(3);
 			trans.setBegDate(today);
+			// try to use this later:
+			// LocalDateTime.from(dt.toInstant()).plusDays(1);
+
+			// trans.setEndDate(today);
 			transDao.save(trans);
 
-			Book book = bookDao.findById(trans.getBookId());
-			book.setUserId(trans.getUserId());
-			bookDao.save(book);
+			// Book book = bookDao.findById(trans.getBookId());
+			// book.setUserId(trans.getUserId());
+			// bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -191,15 +219,18 @@ public class TransactionController {
 
 	@RequestMapping("/news")
 	@ResponseBody
-	public Object news(HttpServletRequest request, Timestamp time) {
+	public Object news(HttpServletRequest request) {
 		try {
 			Long userId = new Long((String) ((Claims) request.getAttribute("claims")).getSubject());
-			List<Transaction> transs = transDao.findByUser(userId);
+			User user = userDao.findById(userId);
+			List<Transaction> transs = transDao.findActive(userId);
 			List<Message> mess = null;
-			
+
 			if (!transs.isEmpty()) {
 				List<Long> transIds = transs.stream().map(Transaction::getId).collect(Collectors.toList());
-				mess = messDao.findNew(userId, transIds, time);
+				mess = messDao.findNew(userId, transIds, user.getLastUpdate());
+				user.setLastUpdate(new Timestamp(System.currentTimeMillis()));
+				userDao.save(user);
 			}
 
 			return new ResponseEntity<>(mess, HttpStatus.OK);

@@ -3,6 +3,8 @@ package bookland.controllers;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import javax.servlet.http.HttpServletRequest;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +17,7 @@ import bookland.dao.BookDao;
 import bookland.dao.UserDao;
 import bookland.models.Book;
 import bookland.models.User;
+import io.jsonwebtoken.Claims;
 
 @Controller
 @RequestMapping("/api/book")
@@ -26,12 +29,30 @@ public class BookController {
 	@Autowired
 	private UserDao userDao;
 
+	@RequestMapping("/count")
+	@ResponseBody
+	public Object count(HttpServletRequest request){
+		try{
+			Long userId = new Long((String) ((Claims) request.getAttribute("claims")).getSubject());
+			int count = bookDao.bookCount(userId);
+			return new ResponseEntity<>(count, HttpStatus.NOT_FOUND);
+		}catch(Exception ex){
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+		}
+	}
+	
 	@RequestMapping("/create")
 	@ResponseBody
 	public Object create(long ownerId, String title, String author) {
 		try {
 			Book book = new Book(ownerId, title, author);
 			bookDao.save(book);
+			
+			int count = bookDao.bookCount(ownerId);
+			User user = userDao.findById(ownerId);
+			user.setBookCount(count);
+			userDao.save(user);
+			
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -44,6 +65,13 @@ public class BookController {
 		try {
 			Book book = new Book(id);
 			bookDao.delete(book);
+			
+			long ownerId = book.getOwnerId();
+			int count = bookDao.bookCount(ownerId);
+			User user = userDao.findById(ownerId);
+			user.setBookCount(count);
+			userDao.save(user);
+			
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);

@@ -8,7 +8,9 @@ import javax.servlet.http.HttpServletRequest;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Controller;
+import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
@@ -23,7 +25,17 @@ import io.jsonwebtoken.Claims;
 public class UserController {
 
 	@Autowired
+	private PasswordEncoder pEncode;
+
+	@Autowired
 	private UserDao userDao;
+
+	@SuppressWarnings("unused")
+	private static class NewPass {
+		public String username;
+		public String password;
+		public String newpassword;
+	}
 
 	@RequestMapping("")
 	@ResponseBody
@@ -119,30 +131,37 @@ public class UserController {
 		}
 	}
 
-	@RequestMapping(value = "/test", method = RequestMethod.GET)
+	@RequestMapping(value = "/newPass", method = RequestMethod.POST)
 	@ResponseBody
-	public Object getId(final HttpServletRequest request) {
+	public Object getId(final HttpServletRequest request, @RequestBody final NewPass passReq) {
 		try {
 			Long userId = new Long((String) ((Claims) request.getAttribute("claims")).getSubject());
-
 			User user = userDao.findById(userId);
-			return new ResponseEntity<>(user, HttpStatus.OK);
+
+			if (pEncode.matches(passReq.password, user.getPassword())) {
+				user.setPassword(pEncode.encode(passReq.newpassword));
+				userDao.save(user);
+				return new ResponseEntity<>(HttpStatus.OK);
+			}else{
+				return new ResponseEntity<>(passReq.password + " " + passReq.newpassword, HttpStatus.BAD_REQUEST);
+			}
+
 		} catch (Exception ex) {
 			return new ResponseEntity<>("Some error occured: " + ex, HttpStatus.NOT_FOUND);
 		}
 	}
 
-//	@RequestMapping(value = "/topBookCount", method = RequestMethod.GET)
-//	@ResponseBody
-//	public Object topBookCount() {
-//		try {
-//			List<User> topusers = userDao.findTop2OrderByBookCount();
-//			List<NearUser> users = topusers.stream()
-//					.map(p -> new NearUser(p.getId(), p.getUsername(), p.getBookCount())).collect(Collectors.toList());
-//
-//			return new ResponseEntity<>(users, HttpStatus.OK);
-//		} catch (Exception ex) {
-//			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
-//		}
-//	}
+	@RequestMapping(value = "/topBookCount", method = RequestMethod.GET)
+	@ResponseBody
+	public Object topBookCount() {
+		try {
+			List<User> topusers = userDao.findTop5ByOrderByBookCountDesc();
+			List<NearUser> users = topusers.stream()
+					.map(p -> new NearUser(p.getId(), p.getUsername(), p.getBookCount())).collect(Collectors.toList());
+
+			return new ResponseEntity<>(users, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+		}
+	}
 }

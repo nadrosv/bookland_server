@@ -31,28 +31,31 @@ public class BookController {
 
 	@RequestMapping("/count")
 	@ResponseBody
-	public Object count(HttpServletRequest request){
-		try{
+	public Object count(HttpServletRequest request) {
+		try {
 			Long userId = new Long((String) ((Claims) request.getAttribute("claims")).getSubject());
 			int count = bookDao.bookCount(userId);
 			return new ResponseEntity<>(count, HttpStatus.NOT_FOUND);
-		}catch(Exception ex){
+		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
 	}
-	
+
 	@RequestMapping("/create")
 	@ResponseBody
-	public Object create(long ownerId, String title, String author) {
+	public Object create(long ownerId, String title, String author, Integer isbn, String cover, Integer condition) {
 		try {
-			Book book = new Book(ownerId, title, author);
+			Book book = new Book(ownerId, title, author, isbn, cover, condition);
 			bookDao.save(book);
-			
+
+			// increasing book number in user table
+			// it would be nice to have a cursor in DB for this job
+			// I'll change it some day
 			int count = bookDao.bookCount(ownerId);
 			User user = userDao.findById(ownerId);
 			user.setBookCount(count);
 			userDao.save(user);
-			
+
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -65,13 +68,16 @@ public class BookController {
 		try {
 			Book book = new Book(id);
 			bookDao.delete(book);
-			
+
+			// increasing book number in user table
+			// it would be nice to have a cursor in DB for this job
+			// I'll change it some day
 			long ownerId = book.getOwnerId();
 			int count = bookDao.bookCount(ownerId);
 			User user = userDao.findById(ownerId);
 			user.setBookCount(count);
 			userDao.save(user);
-			
+
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -82,6 +88,7 @@ public class BookController {
 	@ResponseBody
 	public Object updateBook(long id, String title, String author, long userId) {
 		try {
+			
 			Book book = bookDao.findOne(id);
 			book.setTitle(title);
 			book.setAuthor(author);
@@ -147,7 +154,7 @@ public class BookController {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
 	}
-	
+
 	@RequestMapping("/given")
 	@ResponseBody
 	public Object findGiven(long userId) {
@@ -158,7 +165,7 @@ public class BookController {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
 	}
-	
+
 	@RequestMapping("/taken")
 	@ResponseBody
 	public Object findTaken(long userId) {
@@ -169,7 +176,7 @@ public class BookController {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
 	}
-	
+
 	@RequestMapping("/near")
 	@ResponseBody
 	public Object findNearByKeyword(long userId, String keyWord) {

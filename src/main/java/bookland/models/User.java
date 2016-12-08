@@ -33,6 +33,8 @@ public class User {
 	@Column(name = "rate_neg")
 	private int rateNeg;
 
+	private int reputation;
+
 	@Column(name = "last_update")
 	private Timestamp lastUpdate;
 
@@ -53,12 +55,13 @@ public class User {
 	@NotNull
 	private int bookCount;
 
+	private String aboutUser;
+
 	// private boolean banned;
 	// private int prefLendTime;
 	// private double prefSearchRadius;
 	// private double prefSearchLat;
 	// private double prefSearchLon;
-	// private String aboutUser;
 
 	public User() {
 	}
@@ -71,9 +74,18 @@ public class User {
 		this.email = email;
 		this.username = username;
 		this.password = password;
-		this.lastUpdate = new Timestamp(0);
-		this.prefLendTime = 30;
+		this.lastUpdate = new Timestamp(System.currentTimeMillis());
 		this.bookCount = 0;
+
+		this.rateNeg = 0;
+		this.ratePos = 0;
+		this.reputation = -1;
+
+		this.prefLocalLat = 0;
+		this.prefLocalLon = 0;
+		this.prefLocalRadius = 0;
+		this.prefLendTime = 30;
+		this.aboutUser = null;
 	}
 
 	public long getId() {
@@ -85,6 +97,12 @@ public class User {
 			setRatePos(getRatePos() + 1);
 		} else {
 			setRateNeg(getRateNeg() + 1);
+		}
+		
+		if (getRatePos() != 0 && getRateNeg() != 0) {
+			setReputation((100 * ratePos) / (ratePos + rateNeg));
+		}else if(getRatePos() == 0){
+			setReputation(0);
 		}
 	}
 
@@ -178,6 +196,22 @@ public class User {
 
 	public void setBookCount(int bookCount) {
 		this.bookCount = bookCount;
+	}
+
+	public String getAboutUser() {
+		return aboutUser;
+	}
+
+	public void setAboutUser(String aboutUser) {
+		this.aboutUser = aboutUser;
+	}
+
+	public int getReputation() {
+		return reputation;
+	}
+
+	public void setReputation(int reputation) {
+		this.reputation = reputation;
 	}
 
 }

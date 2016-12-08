@@ -54,30 +54,39 @@ public class MainController {
 	}
 
 	@RequestMapping(value = "login", method = RequestMethod.POST)
-	public Object login(@RequestBody final UserLogin login){
-		
-		User user = userDao.findByUsername(login.username);
-		if (login.username == null || user == null) {
-			return new ResponseEntity<>("Invalid login or user not found.", HttpStatus.BAD_REQUEST);
+	public Object login(@RequestBody final UserLogin login) {
+		try {
+			User user = userDao.findByUsername(login.username);
+			if (login.username == null || user == null) {
+				return new ResponseEntity<>("Invalid login or user not found.", HttpStatus.BAD_REQUEST);
+			}
+			if (!pEncode.matches(login.password, user.getPassword())) {
+				return new ResponseEntity<>("Invalid password.", HttpStatus.BAD_REQUEST);
+			}
+			LoginResponse res = new LoginResponse(
+					Jwts.builder().setSubject(Long.toString(user.getId())).claim("roles", user.getUsername())
+							.setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "secretkey").compact(),
+					user.getId());
+			return new ResponseEntity<>(res, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
-		if (!pEncode.matches(login.password, user.getPassword())) {
-			return new ResponseEntity<>("Invalid password.", HttpStatus.BAD_REQUEST);
-		}
-		LoginResponse res = new LoginResponse(Jwts.builder().setSubject(Long.toString(user.getId())).claim("roles", user.getUsername())
-				.setIssuedAt(new Date()).signWith(SignatureAlgorithm.HS256, "secretkey").compact(), user.getId());
-		return new ResponseEntity<>(res, HttpStatus.OK);
 	}
 
 	@RequestMapping(value = "register", method = RequestMethod.POST)
 	@ResponseBody
-	public Object fakeRegistration(@RequestBody final UserLogin reg) throws ServletException {
-		User user = userDao.findByUsername(reg.username);
-		if (user != null) {
-			throw new ServletException("User exists");
+	public Object register(@RequestBody final UserLogin reg) throws ServletException {
+		try {
+			User user = userDao.findByUsername(reg.username);
+			if (user != null) {
+				throw new ServletException("User exists");
+			}
+			user = new User(reg.email, reg.username, pEncode.encode(reg.password));
+			userDao.save(user);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
-		user = new User(reg.email, reg.username, pEncode.encode(reg.password));
-		userDao.save(user);
-		return new ResponseEntity<>(user.getId(), HttpStatus.OK);
 	}
 
 }

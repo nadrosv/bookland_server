@@ -7,11 +7,9 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-
 @Entity
 @Table(name = "books")
 public class Book {
-
 
 	@Id
 	@GeneratedValue(strategy = GenerationType.AUTO)
@@ -19,7 +17,7 @@ public class Book {
 
 	@NotNull
 	private long ownerId;
-	
+
 	@NotNull
 	private long userId;
 
@@ -28,15 +26,32 @@ public class Book {
 
 	@NotNull
 	private String author;
-	
+
 	private Integer isbn;
 
+	private String coverLink;
+
+	// book condition 1-5 scale
+	private Integer bookCondition;
 
 	public Book(long ownerId, String title, String author) {
 		this.ownerId = ownerId;
 		this.userId = ownerId;
 		this.title = title;
 		this.author = author;
+		this.coverLink = null;
+		this.bookCondition = 0;
+	}
+
+	public Book(long ownerId, String title, String author, Integer isbn, String coverLink, int condition) {
+		super();
+		this.ownerId = ownerId;
+		this.userId = ownerId;
+		this.title = title;
+		this.author = author;
+		this.isbn = isbn;
+		this.coverLink = coverLink;
+		this.bookCondition = condition;
 	}
 
 	public Book(long id) {
@@ -94,5 +109,20 @@ public class Book {
 		this.isbn = isbn;
 	}
 
+	public String getCoverLink() {
+		return coverLink;
+	}
+
+	public void setCoverLink(String coverLink) {
+		this.coverLink = coverLink;
+	}
+
+	public Integer getCondition() {
+		return bookCondition;
+	}
+
+	public void setCondition(Integer condition) {
+		this.bookCondition = condition;
+	}
 
 }

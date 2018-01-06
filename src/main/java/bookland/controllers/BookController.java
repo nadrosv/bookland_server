@@ -35,7 +35,7 @@ public class BookController {
 		try {
 			Long userId = new Long((String) ((Claims) request.getAttribute("claims")).getSubject());
 			int count = bookDao.bookCount(userId);
-			return new ResponseEntity<>(count, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(count, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}

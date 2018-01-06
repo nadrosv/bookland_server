@@ -13,3 +13,4 @@ buildNumber.properties
 .springBeans
 .settings/
 .classpath
+src/main/resources/application.properties

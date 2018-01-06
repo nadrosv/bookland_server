@@ -32,7 +32,7 @@ public class MainController {
 	@RequestMapping("")
 	@ResponseBody
 	public String index() {
-		return "Hello World?";
+		return "Cześć! (sorry for my bad Polish)";
 	}
 
 	@SuppressWarnings("unused")

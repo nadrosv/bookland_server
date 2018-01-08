@@ -8,8 +8,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 
 @Entity
@@ -17,16 +15,13 @@ import javax.persistence.Table;
 public class Message {
 
 	@Id
-	@Column(name = "message_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
-	@ManyToOne(targetEntity = Transaction.class)
-	@JoinColumn(name = "transaction_id")
+	@Column(name = "trans_id")
 	private long transId;
 
-	@ManyToOne(targetEntity = User.class)
-	@JoinColumn(name = "sender_id", referencedColumnName = "user_id")
+	@Column(name = "sender_id")
 	private long senderId;
 	
 	@Column(name = "send_time")

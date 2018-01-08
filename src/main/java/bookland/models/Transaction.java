@@ -7,8 +7,6 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
-import javax.persistence.JoinColumn;
-import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -17,35 +15,31 @@ import javax.validation.constraints.NotNull;
 public class Transaction {
 
 	@Id
-	@Column(name = "transaction_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
 	@Column(name = "status")
 	private int status;
 
-	@ManyToOne(targetEntity = User.class)
-	@JoinColumn(name = "owner_id", referencedColumnName = "user_id")
+	@Column(name = "owner_id")
 	private long ownerId;
 
-	@ManyToOne(targetEntity = User.class)
-	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
+	@Column(name = "user_id")
 	private long userId;
 
-//	@Column(name = "ownername")
-//	private String ownerName;
-//
-//	@Column(name = "username")
-//	private String userName;
+	@Column(name = "ownername")
+	private String ownerName;
 
-//	@Column(name = "title")
-//	private String title;
-//
-//	@Column(name = "author")
-//	private String author;
+	@Column(name = "username")
+	private String userName;
 
-	@ManyToOne(targetEntity = Book.class)
-	@JoinColumn(name = "book_id")
+	@Column(name = "title")
+	private String title;
+
+	@Column(name = "author")
+	private String author;
+
+	@Column(name = "book_id")
 	private long bookId;
 
 	@Column(name = "beg_date")
@@ -93,10 +87,10 @@ public class Transaction {
 		this.ownerId = ownerId;
 		this.userId = userId;
 		this.bookId = bookId;
-//		this.title = title;
-//		this.author = author;
-//		this.ownerName = ownerName;
-//		this.userName = userName;
+		this.title = title;
+		this.author = author;
+		this.ownerName = ownerName;
+		this.userName = userName;
 		this.begDate = null;
 		this.endDate = null;
 		this.ownerSummary = null;
@@ -210,36 +204,36 @@ public class Transaction {
 		this.messaging = messaging;
 	}
 
-//	public String getOwnerName() {
-//		return ownerName;
-//	}
-//
-//	public void setOwnerName(String ownerName) {
-//		this.ownerName = ownerName;
-//	}
-//
-//	public String getUserName() {
-//		return userName;
-//	}
-//
-//	public void setUserName(String userName) {
-//		this.userName = userName;
-//	}
+	public String getOwnerName() {
+		return ownerName;
+	}
 
-//	public String getTitle() {
-//		return title;
-//	}
-//
-//	public void setTitle(String title) {
-//		this.title = title;
-//	}
-//
-//	public String getAuthor() {
-//		return author;
-//	}
-//
-//	public void setAuthor(String author) {
-//		this.author = author;
-//	}
+	public void setOwnerName(String ownerName) {
+		this.ownerName = ownerName;
+	}
+
+	public String getUserName() {
+		return userName;
+	}
+
+	public void setUserName(String userName) {
+		this.userName = userName;
+	}
+
+	public String getTitle() {
+		return title;
+	}
+
+	public void setTitle(String title) {
+		this.title = title;
+	}
+
+	public String getAuthor() {
+		return author;
+	}
+
+	public void setAuthor(String author) {
+		this.author = author;
+	}
 
 }

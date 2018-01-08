@@ -19,18 +19,18 @@ public class Transaction {
 	@Id
 	@Column(name = "transaction_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private Long id;
 
 	@Column(name = "status")
 	private int status;
 
 	@ManyToOne(targetEntity = User.class)
 	@JoinColumn(name = "owner_id", referencedColumnName = "user_id")
-	private long ownerId;
+	private Long ownerId;
 
 	@ManyToOne(targetEntity = User.class)
 	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
-	private long userId;
+	private Long userId;
 
 //	@Column(name = "ownername")
 //	private String ownerName;
@@ -46,7 +46,7 @@ public class Transaction {
 
 	@ManyToOne(targetEntity = Book.class)
 	@JoinColumn(name = "book_id")
-	private long bookId;
+	private Long bookId;
 
 	@Column(name = "beg_date")
 	private Date begDate;
@@ -71,7 +71,7 @@ public class Transaction {
 	@Column(name = "messaging")
 	private boolean messaging;
 
-	public Transaction(long ownerId, long userId, long bookId) {
+	public Transaction(Long ownerId, Long userId, Long bookId) {
 		super();
 		this.status = 1;
 		this.ownerId = ownerId;
@@ -86,7 +86,7 @@ public class Transaction {
 		this.ownerRate = 0;
 	}
 
-	public Transaction(long ownerId, long userId, long bookId, String ownerName, String userName, String title,
+	public Transaction(Long ownerId, Long userId, Long bookId, String ownerName, String userName, String title,
 			String author) {
 		super();
 		this.status = 1;
@@ -106,7 +106,7 @@ public class Transaction {
 		this.ownerRate = 0;
 	}
 
-	public Transaction(long id) {
+	public Transaction(Long id) {
 		super();
 		this.id = id;
 	}
@@ -114,11 +114,11 @@ public class Transaction {
 	public Transaction() {
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
-	public void setId(long id) {
+	public void setId(Long id) {
 		this.id = id;
 	}
 
@@ -130,27 +130,27 @@ public class Transaction {
 		this.status = status;
 	}
 
-	public long getOwnerId() {
+	public Long getOwnerId() {
 		return ownerId;
 	}
 
-	public void setOwnerId(long ownerId) {
+	public void setOwnerId(Long ownerId) {
 		this.ownerId = ownerId;
 	}
 
-	public long getUserId() {
+	public Long getUserId() {
 		return userId;
 	}
 
-	public void setUserId(long userId) {
+	public void setUserId(Long userId) {
 		this.userId = userId;
 	}
 
-	public long getBookId() {
+	public Long getBookId() {
 		return bookId;
 	}
 
-	public void setBookId(long bookId) {
+	public void setBookId(Long bookId) {
 		this.bookId = bookId;
 	}
 

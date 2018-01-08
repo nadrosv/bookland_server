@@ -1,12 +1,15 @@
 package bookland.models;
 
 import java.sql.Timestamp;
+import java.util.HashSet;
+import java.util.Set;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
@@ -14,10 +17,16 @@ import javax.validation.constraints.NotNull;
 @Table(name = "users")
 public class User {
 
+	@OneToMany(mappedBy = "owner")
+	private Set<Book> ownedBooks = new HashSet<Book>();
+	
+	@OneToMany(mappedBy = "user")
+	private Set<Book> usedBooks = new HashSet<Book>();
+	
 	@Id
 	@Column(name = "user_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private long id;
+	private Long id;
 
 	@NotNull
 	private String email;
@@ -67,7 +76,7 @@ public class User {
 	public User() {
 	}
 
-	public User(long id) {
+	public User(Long id) {
 		this.id = id;
 	}
 
@@ -89,7 +98,7 @@ public class User {
 		this.aboutUser = null;
 	}
 
-	public long getId() {
+	public Long getId() {
 		return id;
 	}
 
@@ -107,7 +116,7 @@ public class User {
 		}
 	}
 
-	public void setId(long value) {
+	public void setId(Long value) {
 		this.id = value;
 	}
 

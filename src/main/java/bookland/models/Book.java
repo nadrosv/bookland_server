@@ -10,8 +10,6 @@ import javax.persistence.ManyToOne;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
 
-import com.fasterxml.jackson.annotation.JsonBackReference;
-
 @Entity
 @Table(name = "books")
 public class Book {
@@ -19,25 +17,17 @@ public class Book {
 	@Id
 	@Column(name = "book_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
-	
-//	@NotNull
-	@ManyToOne/*(fetch = FetchType.LAZY)*/
-	@JoinColumn(name = "user_id", nullable = false)
-	@JsonBackReference
-	private User owner;
-//	@ManyToOne(targetEntity = User.class)
-//	@JoinColumn(name = "owner_id", referencedColumnName = "user_id")
-//	private Long ownerId;
+	private long id;
 
-//	@NotNull
-	@ManyToOne/*(fetch = FetchType.LAZY)*/
-	@JoinColumn(name = "user_id", nullable = false)
-	@JsonBackReference
-	private User user;
-//	@ManyToOne(targetEntity = User.class)
-//	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
-//	private Long userId;
+	@NotNull
+	@ManyToOne(targetEntity = User.class)
+	@JoinColumn(name = "owner_id", referencedColumnName = "user_id")
+	private long ownerId;
+
+	@NotNull
+	@ManyToOne(targetEntity = User.class)
+	@JoinColumn(name = "user_id", referencedColumnName = "user_id")
+	private long userId;
 
 	@NotNull
 	private String title;
@@ -52,19 +42,19 @@ public class Book {
 	// book condition 1-5 scale
 	private Integer bookCondition;
 
-	public Book(Long ownerId, String title, String author) {
-//		this.ownerId = ownerId;
-//		this.userId = ownerId;
+	public Book(long ownerId, String title, String author) {
+		this.ownerId = ownerId;
+		this.userId = ownerId;
 		this.title = title;
 		this.author = author;
 		this.coverLink = null;
 		this.bookCondition = 0;
 	}
 
-	public Book(Long ownerId, String title, String author, Integer isbn, String coverLink, int condition) {
+	public Book(long ownerId, String title, String author, Integer isbn, String coverLink, int condition) {
 		super();
-//		this.ownerId = ownerId;
-//		this.userId = ownerId;
+		this.ownerId = ownerId;
+		this.userId = ownerId;
 		this.title = title;
 		this.author = author;
 		this.isbn = isbn;
@@ -72,41 +62,21 @@ public class Book {
 		this.bookCondition = condition;
 	}
 
-	public Book(Long id) {
+	public Book(long id) {
 		this.id = id;
 	}
 
 	public Book() {
 	}
 
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	
-	
-	User getOwner() {
-		return this.owner;
-	}
-	
-	void setOwner(User obj) {
-		this.owner = obj;
-	}
-	
-	User getUser() {
-		return this.user;
-	}
-	
-	void setUser(User obj) {
-		this.user = obj;
-	}
-	
-	
-	
 	public String getTitle() {
 		return title;
 	}
@@ -123,21 +93,21 @@ public class Book {
 		this.author = author;
 	}
 
-//	public Long getOwnerId() {
-//		return ownerId;
-//	}
-//
-//	public void setOwnerId(Long ownerId) {
-//		this.ownerId = ownerId;
-//	}
-//
-//	public Long getUserId() {
-//		return userId;
-//	}
-//
-//	public void setUserId(Long userId) {
-//		this.userId = userId;
-//	}
+	public long getOwnerId() {
+		return ownerId;
+	}
+
+	public void setOwnerId(long ownerId) {
+		this.ownerId = ownerId;
+	}
+
+	public long getUserId() {
+		return userId;
+	}
+
+	public void setUserId(long userId) {
+		this.userId = userId;
+	}
 
 	public Integer getIsbn() {
 		return isbn;

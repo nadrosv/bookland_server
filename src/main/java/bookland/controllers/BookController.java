@@ -17,7 +17,6 @@ import bookland.dao.BookDao;
 import bookland.dao.UserDao;
 import bookland.models.Book;
 import bookland.models.User;
-import ch.qos.logback.core.net.SyslogOutputStream;
 import io.jsonwebtoken.Claims;
 
 @Controller
@@ -44,41 +43,40 @@ public class BookController {
 
 	@RequestMapping("/create")
 	@ResponseBody
-	public Object create(User owner, String title, String author, Integer isbn, String cover, Integer condition) {
+	public Object create(long ownerId, String title, String author, Integer isbn, String cover, Integer condition) {
 		try {
-			Book book = new Book(owner, title, author, isbn, cover, condition);
+			Book book = new Book(ownerId, title, author, isbn, cover, condition);
 			bookDao.save(book);
 
 			// increasing book number in user table
 			// it would be nice to have a cursor in DB for this job
 			// I'll change it some day
-//			int count = bookDao.bookCount(ownerId);
-//			User user = userDao.findById(ownerId);
-//			user.setBookCount(count);
-//			userDao.save(user);
+			int count = bookDao.bookCount(ownerId);
+			User user = userDao.findById(ownerId);
+			user.setBookCount(count);
+			userDao.save(user);
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			ex.printStackTrace();
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
 	}
 
 	@RequestMapping("/delete")
 	@ResponseBody
-	public Object delete(Long id) {
+	public Object delete(long id) {
 		try {
 			Book book = new Book(id);
 			bookDao.delete(book);
 
-			// decreasing book number in user table
+			// increasing book number in user table
 			// it would be nice to have a cursor in DB for this job
 			// I'll change it some day
-//			Long ownerId = book.getOwnerId();
-//			int count = bookDao.bookCount(ownerId);
-//			User user = userDao.findById(ownerId);
-//			user.setBookCount(count);
-//			userDao.save(user);
+			long ownerId = book.getOwnerId();
+			int count = bookDao.bookCount(ownerId);
+			User user = userDao.findById(ownerId);
+			user.setBookCount(count);
+			userDao.save(user);
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
@@ -88,14 +86,14 @@ public class BookController {
 
 	@RequestMapping("/update")
 	@ResponseBody
-	public Object updateBook(Long id, String title, String author, Long userId) {
+	public Object updateBook(long id, String title, String author, long userId) {
 		try {
 			
-//			Book book = bookDao.findOne(id);
-//			book.setTitle(title);
-//			book.setAuthor(author);
-//			book.setUserId(userId);
-//			bookDao.save(book);
+			Book book = bookDao.findOne(id);
+			book.setTitle(title);
+			book.setAuthor(author);
+			book.setUserId(userId);
+			bookDao.save(book);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -104,7 +102,7 @@ public class BookController {
 
 	@RequestMapping("/user")
 	@ResponseBody
-	public Object getByOwnerId(Long id) {
+	public Object getByOwnerId(long id) {
 		try {
 			List<Book> books = bookDao.findByOwnerId(id);
 			return new ResponseEntity<>(books, HttpStatus.OK);
@@ -115,7 +113,7 @@ public class BookController {
 
 	@RequestMapping("")
 	@ResponseBody
-	public Object getById(Long id) {
+	public Object getById(long id) {
 		try {
 			Book book = bookDao.findById(id);
 			return new ResponseEntity<>(book, HttpStatus.OK);
@@ -159,7 +157,7 @@ public class BookController {
 
 	@RequestMapping("/given")
 	@ResponseBody
-	public Object findGiven(Long userId) {
+	public Object findGiven(long userId) {
 		try {
 			List<Book> books = bookDao.findGiven(userId);
 			return new ResponseEntity<>(books, HttpStatus.OK);
@@ -170,7 +168,7 @@ public class BookController {
 
 	@RequestMapping("/taken")
 	@ResponseBody
-	public Object findTaken(Long userId) {
+	public Object findTaken(long userId) {
 		try {
 			List<Book> books = bookDao.findTaken(userId);
 			return new ResponseEntity<>(books, HttpStatus.OK);
@@ -181,7 +179,7 @@ public class BookController {
 
 	@RequestMapping("/near")
 	@ResponseBody
-	public Object findNearByKeyword(Long userId, String keyWord) {
+	public Object findNearByKeyword(long userId, String keyWord) {
 		try {
 			User user = userDao.findById(userId);
 			List<User> nearUsers = userDao.findNear(user.getId(), user.getPrefLocalLat(), user.getPrefLocalLon(),

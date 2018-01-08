@@ -19,15 +19,15 @@ public class Message {
 	@Id
 	@Column(name = "message_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
-	private Long id;
+	private long id;
 
 	@ManyToOne(targetEntity = Transaction.class)
 	@JoinColumn(name = "transaction_id")
-	private Long transId;
+	private long transId;
 
 	@ManyToOne(targetEntity = User.class)
 	@JoinColumn(name = "sender_id", referencedColumnName = "user_id")
-	private Long senderId;
+	private long senderId;
 	
 	@Column(name = "send_time")
 	private Timestamp sendTime;
@@ -35,7 +35,7 @@ public class Message {
 	@Column(name = "message")
 	private String message;
 
-	public Message(Long transId, Long senderId, Timestamp sendTime, String message) {
+	public Message(long transId, long senderId, Timestamp sendTime, String message) {
 		super();
 		this.transId = transId;
 		this.senderId = senderId;
@@ -43,7 +43,7 @@ public class Message {
 		this.message = message;
 	}
 
-	public Message(Long id) {
+	public Message(long id) {
 		super();
 		this.id = id;
 	}
@@ -51,27 +51,27 @@ public class Message {
 	public Message() {
 	}
 
-	public Long getId() {
+	public long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
+	public void setId(long id) {
 		this.id = id;
 	}
 
-	public Long getTransId() {
+	public long getTransId() {
 		return transId;
 	}
 
-	public void setTransId(Long transId) {
+	public void setTransId(long transId) {
 		this.transId = transId;
 	}
 
-	public Long getSenderId() {
+	public long getSenderId() {
 		return senderId;
 	}
 
-	public void setSenderId(Long senderId) {
+	public void setSenderId(long senderId) {
 		this.senderId = senderId;
 	}
 

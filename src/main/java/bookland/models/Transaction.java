@@ -1,31 +1,53 @@
 package bookland.models;
 
 import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.ManyToOne;
+import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
+
+import com.fasterxml.jackson.annotation.JsonBackReference;
 
 @Entity
 @Table(name = "transactions")
 public class Transaction {
 
+	@OneToMany(mappedBy = "transaction", cascade = CascadeType.ALL)
+	private Set<Message> messages = new HashSet<Message>();
+	
 	@Id
+	@Column(name = "transaction_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
 
 	@Column(name = "status")
 	private int status;
 
-	@Column(name = "owner_id")
-	private long ownerId;
-
-	@Column(name = "user_id")
-	private long userId;
+	@ManyToOne/*(fetch = FetchType.LAZY)*/
+	@JoinColumn(name = "owner_id")
+	@JsonBackReference
+	private User owner;
+	
+	@ManyToOne/*(fetch = FetchType.LAZY)*/
+	@JoinColumn(name = "user_id")
+	@JsonBackReference
+	private User user;
+	
+//	@Column(name = "owner_id")
+//	private long ownerId;
+//
+//	@Column(name = "user_id")
+//	private long userId;
 
 	@Column(name = "ownername")
 	private String ownerName;
@@ -39,8 +61,13 @@ public class Transaction {
 	@Column(name = "author")
 	private String author;
 
-	@Column(name = "book_id")
-	private long bookId;
+	@ManyToOne/*(fetch = FetchType.LAZY)*/
+	@JoinColumn(name = "book_id")
+	@JsonBackReference
+	private Book book;
+	
+//	@Column(name = "book_id")
+//	private long bookId;
 
 	@Column(name = "beg_date")
 	private Date begDate;
@@ -68,9 +95,9 @@ public class Transaction {
 	public Transaction(long ownerId, long userId, long bookId) {
 		super();
 		this.status = 1;
-		this.ownerId = ownerId;
-		this.userId = userId;
-		this.bookId = bookId;
+//		this.ownerId = ownerId;
+//		this.userId = userId;
+//		this.bookId = bookId;
 		this.begDate = null;
 		this.endDate = null;
 		this.ownerSummary = null;
@@ -84,9 +111,9 @@ public class Transaction {
 			String author) {
 		super();
 		this.status = 1;
-		this.ownerId = ownerId;
-		this.userId = userId;
-		this.bookId = bookId;
+//		this.ownerId = ownerId;
+//		this.userId = userId;
+//		this.bookId = bookId;
 		this.title = title;
 		this.author = author;
 		this.ownerName = ownerName;
@@ -124,29 +151,29 @@ public class Transaction {
 		this.status = status;
 	}
 
-	public long getOwnerId() {
-		return ownerId;
-	}
+//	public long getOwnerId() {
+//		return ownerId;
+//	}
+//
+//	public void setOwnerId(long ownerId) {
+//		this.ownerId = ownerId;
+//	}
+//
+//	public long getUserId() {
+//		return userId;
+//	}
+//
+//	public void setUserId(long userId) {
+//		this.userId = userId;
+//	}
 
-	public void setOwnerId(long ownerId) {
-		this.ownerId = ownerId;
-	}
-
-	public long getUserId() {
-		return userId;
-	}
-
-	public void setUserId(long userId) {
-		this.userId = userId;
-	}
-
-	public long getBookId() {
-		return bookId;
-	}
-
-	public void setBookId(long bookId) {
-		this.bookId = bookId;
-	}
+//	public long getBookId() {
+//		return bookId;
+//	}
+//
+//	public void setBookId(long bookId) {
+//		this.bookId = bookId;
+//	}
 
 	public Date getBegDate() {
 		return begDate;

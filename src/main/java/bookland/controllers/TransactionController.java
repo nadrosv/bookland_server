@@ -77,19 +77,19 @@ public class TransactionController {
 	@ResponseBody
 	public Object init(long bookId, long userId) {
 		try {
-			Transaction check = transDao.findByUserIdAndBookId(userId, bookId);
-
-			if (check == null) {
-				Book book = bookDao.findById(bookId);
-				User owner = userDao.findById(book.getOwnerId());
-				User user = userDao.findById(userId);
-				Transaction trans = new Transaction(book.getOwnerId(), userId, bookId, owner.getUsername(),
-						user.getUsername(), book.getTitle(), book.getAuthor());
-				transDao.save(trans);
-				return new ResponseEntity<>(trans, HttpStatus.OK);
-			} else {
+//			Transaction check = transDao.findByUserIdAndBookId(userId, bookId);
+//
+//			if (check == null) {
+//				Book book = bookDao.findById(bookId);
+//				User owner = userDao.findById(book.getOwnerId());
+//				User user = userDao.findById(userId);
+//				Transaction trans = new Transaction(book.getOwnerId(), userId, bookId, owner.getUsername(),
+//						user.getUsername(), book.getTitle(), book.getAuthor());
+//				transDao.save(trans);
+//				return new ResponseEntity<>(trans, HttpStatus.OK);
+//			} else {
 				return new ResponseEntity<>(HttpStatus.OK);
-			}
+//			}
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
 		}
@@ -104,9 +104,9 @@ public class TransactionController {
 			trans.setMessaging(true);
 			transDao.save(trans);
 
-			Book book = bookDao.findById(trans.getBookId());
-			book.setUserId(trans.getUserId());
-			bookDao.save(book);
+//			Book book = bookDao.findById(trans.getBookId());
+//			book.setUserId(trans.getUserId());
+//			bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -144,9 +144,9 @@ public class TransactionController {
 			trans.setStatus(4);
 			transDao.save(trans);
 
-			Book book = bookDao.findById(trans.getBookId());
-			book.setUserId(trans.getOwnerId());
-			bookDao.save(book);
+//			Book book = bookDao.findById(trans.getBookId());
+//			book.setUserId(trans.getOwnerId());
+//			bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -162,15 +162,15 @@ public class TransactionController {
 				if (owner) {
 					trans.setOwnerSummary(feedback);
 					trans.setOwnerRate(rate);
-					User bookUser = userDao.findById(trans.getUserId());
-					bookUser.vote(rate);
-					userDao.save(bookUser);
+//					User bookUser = userDao.findById(trans.getUserId());
+//					bookUser.vote(rate);
+//					userDao.save(bookUser);
 				} else {
 					trans.setUserSummary(feedback);
 					trans.setUserRate(rate);
-					User bookOwner = userDao.findById(trans.getOwnerId());
-					bookOwner.vote(rate);
-					userDao.save(bookOwner);
+//					User bookOwner = userDao.findById(trans.getOwnerId());
+//					bookOwner.vote(rate);
+//					userDao.save(bookOwner);
 				}
 				if (trans.getOwnerRate() != 0 && trans.getUserRate() != 0) {
 					trans.setStatus(5);

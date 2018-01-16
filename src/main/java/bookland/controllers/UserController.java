@@ -85,6 +85,17 @@ public class UserController {
 		}
 	}
 
+	@RequestMapping("/all")
+	@ResponseBody
+	public Object getAll() {
+		try {
+			List<User> users = userDao.findAll();
+			return new ResponseEntity<>(users, HttpStatus.OK);
+		} catch (Exception ex) {
+			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
+		}
+	}
+	
 	@RequestMapping("/near")
 	@ResponseBody
 	public Object findNear(long userId) {

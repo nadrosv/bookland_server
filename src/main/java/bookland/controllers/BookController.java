@@ -45,22 +45,26 @@ public class BookController {
 	@ResponseBody
 	public Object create(long ownerId, String title, String author, Integer isbn, String cover, Integer condition) {
 		try {
-//			Book book = new Book(ownerId, title, author, isbn, cover, condition);
-//			book.setAuthor("aaa");
-//			bookDao.save(book);
+			User user = userDao.findById(ownerId);
+			if(user == null) {
+				return new ResponseEntity<>("User does not exist.", HttpStatus.NOT_FOUND);
+			}
+			
+			Book book = new Book(ownerId, title, author);
+			bookDao.save(book);
 
 			// increasing book number in user table
 			// it would be nice to have a cursor in DB for this job
 			// I'll change it some day
-			int count = bookDao.bookCount(ownerId);
-			User user = userDao.findById(ownerId);
-			user.setBookCount(count);
-			userDao.save(user);
+//			int count = bookDao.bookCount(ownerId);
+//			User user = userDao.findById(ownerId);
+//			user.setBookCount(count);
+//			userDao.save(user);
 
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			ex.printStackTrace();
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>("Error occured", HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -68,10 +72,9 @@ public class BookController {
 	@ResponseBody
 	public Object delete(long id) {
 		try {
-//			Book book = new Book(id);
-//			bookDao.delete(book);
+			bookDao.delete(bookDao.findById(id));
 
-			// increasing book number in user table
+			// decreasing book number in user table
 			// it would be nice to have a cursor in DB for this job
 			// I'll change it some day
 //			long ownerId = book.getOwnerId();
@@ -91,11 +94,11 @@ public class BookController {
 	public Object updateBook(long id, String title, String author, long userId) {
 		try {
 			
-//			Book book = bookDao.findOne(id);
-//			book.setTitle(title);
-//			book.setAuthor(author);
-//			book.setUserId(userId);
-//			bookDao.save(book);
+			Book book = bookDao.findOne(id);
+			book.setTitle(title);
+			book.setAuthor(author);
+			book.setUserId(userId);
+			bookDao.save(book);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
@@ -106,8 +109,8 @@ public class BookController {
 	@ResponseBody
 	public Object getByOwnerId(long id) {
 		try {
-//			List<Book> books = bookDao.findByOwnerId(id);
-			return new ResponseEntity<>(/*books, */HttpStatus.OK);
+			List<Book> books = bookDao.findByOwnerId(id);
+			return new ResponseEntity<>(books, HttpStatus.OK);
 		} catch (Exception ex) {
 			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
 		}
@@ -162,9 +165,11 @@ public class BookController {
 	public Object findGiven(long userId) {
 		try {
 			List<Book> books = bookDao.findGiven(userId);
+			if(books != null)
+				return new ResponseEntity<>(books, HttpStatus.NOT_FOUND);
 			return new ResponseEntity<>(books, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 
@@ -173,9 +178,11 @@ public class BookController {
 	public Object findTaken(long userId) {
 		try {
 			List<Book> books = bookDao.findTaken(userId);
+			if(books.isEmpty())
+				return new ResponseEntity<>(books, HttpStatus.NOT_FOUND);
 			return new ResponseEntity<>(books, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 

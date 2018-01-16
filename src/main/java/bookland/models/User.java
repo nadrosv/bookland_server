@@ -1,15 +1,13 @@
 package bookland.models;
 
 import java.sql.Timestamp;
-import java.util.HashSet;
-import java.util.Set;
-
-import javax.persistence.CascadeType;
+import java.util.List;
 import javax.persistence.Column;
 import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
 import javax.persistence.OneToMany;
 import javax.persistence.Table;
 import javax.validation.constraints.NotNull;
@@ -18,20 +16,25 @@ import javax.validation.constraints.NotNull;
 @Table(name = "users")
 public class User {
 
-	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-	private Set<Book> ownedBooks = new HashSet<Book>();
+	@OneToMany
+	@JoinColumn(name="owner_id", referencedColumnName="user_id")
+	private List<Book> ownedBooks;
 	
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private Set<Book> usedBooks = new HashSet<Book>();
+	@OneToMany
+	@JoinColumn(name="user_id", referencedColumnName="user_id")
+	private List<Book> usedBooks;
 	
-	@OneToMany(mappedBy = "owner", cascade = CascadeType.ALL)
-	private Set<Transaction> ownersTransactions = new HashSet<Transaction>();
+	@OneToMany
+	@JoinColumn(name="owner_id", referencedColumnName="user_id")
+	private List<Transaction> ownerTransactions;
 	
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL)
-	private Set<Transaction> usersTransactions = new HashSet<Transaction>();
+	@OneToMany
+	@JoinColumn(name="user_id", referencedColumnName="user_id")
+	private List<Transaction> userTransactions;
 	
-	@OneToMany(mappedBy = "sender", cascade = CascadeType.ALL)
-	private Set<Message> messages = new HashSet<Message>();
+	@OneToMany
+	@JoinColumn(name="sender_id", referencedColumnName="user_id")
+	private List<Message> userMessages;
 	
 	
 	@Id
@@ -59,6 +62,7 @@ public class User {
 	@Column(name = "last_update")
 	private Timestamp lastUpdate;
 
+	// book searching range radius [km?]
 	@Column(name = "pref_local_radius")
 	private double prefLocalRadius;
 

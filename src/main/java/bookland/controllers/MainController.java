@@ -73,14 +73,36 @@ public class MainController {
 		}
 	}
 
+	// Test endpoint
+	@RequestMapping(value = "add", method = RequestMethod.POST)
+	@ResponseBody
+	public Object add(@RequestBody final UserLogin reg) throws ServletException {
+		try {
+			User user = userDao.findByUsername(reg.username);
+			
+			if (user != null) {
+				return new ResponseEntity<>("User already exists.", HttpStatus.CONFLICT);
+			}
+			
+			user = new User(reg.email, reg.username, reg.password);
+			userDao.save(user);
+			return new ResponseEntity<>(HttpStatus.OK);
+		} catch (Exception ex) {
+			ex.printStackTrace();
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
+		}
+	}
+	
 	@RequestMapping(value = "register", method = RequestMethod.POST)
 	@ResponseBody
 	public Object register(@RequestBody final UserLogin reg) throws ServletException {
 		try {
 			User user = userDao.findByUsername(reg.username);
+			
 			if (user != null) {
-				throw new ServletException("User exists");
+				return new ResponseEntity<>("User already exists.", HttpStatus.CONFLICT);
 			}
+			
 			user = new User(reg.email, reg.username, pEncode.encode(reg.password));
 			userDao.save(user);
 			return new ResponseEntity<>(HttpStatus.OK);

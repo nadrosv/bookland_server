@@ -169,7 +169,7 @@ public class BookController {
 				return new ResponseEntity<>(books, HttpStatus.NOT_FOUND);
 			return new ResponseEntity<>(books, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(ex.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -182,7 +182,7 @@ public class BookController {
 				return new ResponseEntity<>(books, HttpStatus.NOT_FOUND);
 			return new ResponseEntity<>(books, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex.toString(), HttpStatus.INTERNAL_SERVER_ERROR);
+			return new ResponseEntity<>(ex.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -197,7 +197,7 @@ public class BookController {
 			List<Book> books = bookDao.findNearByKeyWord(userId, usersId, keyWord);
 			return new ResponseEntity<>(books, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 }

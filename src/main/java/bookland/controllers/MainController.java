@@ -84,7 +84,7 @@ public class MainController {
 				return new ResponseEntity<>("User already exists.", HttpStatus.CONFLICT);
 			}
 			
-			user = new User(reg.email, reg.username, reg.password);
+			user = new User(reg.email, reg.username, pEncode.encode(reg.password));
 			userDao.save(user);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {

@@ -7,6 +7,7 @@ import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
 import javax.persistence.Table;
+import javax.validation.constraints.NotNull;
 
 @Entity
 @Table(name = "messages")
@@ -16,20 +17,12 @@ public class Message {
 	@Column(name = "message_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
-//	@ManyToOne/*(fetch = FetchType.LAZY)*/
-//	@JoinColumn(name = "user_id")
-//	@JsonBackReference
-//	private User sender;
-//	
-//	@ManyToOne/*(fetch = FetchType.LAZY)*/
-//	@JoinColumn(name = "transaction_id")
-//	@JsonBackReference
-//	private Transaction transaction;
 
+	@NotNull
 	@Column(name = "trans_id")
 	private long transId;
 
+	@NotNull
 	@Column(name = "sender_id")
 	private long senderId;
 	

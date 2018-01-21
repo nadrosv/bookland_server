@@ -16,7 +16,7 @@ import org.springframework.web.bind.annotation.RequestMethod;
 import org.springframework.web.bind.annotation.ResponseBody;
 
 import bookland.dao.UserDao;
-import bookland.models.NearUser;
+import bookland.models.VisibleUser;
 import bookland.models.User;
 import io.jsonwebtoken.Claims;
 
@@ -53,11 +53,16 @@ public class UserController {
 	@ResponseBody
 	public Object create(String email, String username, String password) {
 		try {
+			if(userDao.findByEmailOrUsername(email, username) != null) {
+				return new ResponseEntity<>("User already exists.", HttpStatus.CONFLICT);
+			}
+			
 			User user = new User(email, username, password);
 			userDao.save(user);
 			return new ResponseEntity<>(user, HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Error creating the user: " + ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -65,11 +70,17 @@ public class UserController {
 	@ResponseBody
 	public Object delete(long id) {
 		try {
-			User user = new User(id);
+			User user = userDao.findById(id);
+			
+			if(user == null) {
+				return new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
+			}
+			
 			userDao.delete(user);
 			return new ResponseEntity<>(HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Error deleting the user: " + ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -78,9 +89,15 @@ public class UserController {
 	public Object getByEmail(String email) {
 		try {
 			User user = userDao.findByEmail(email);
+			
+			if(userDao.findByEmail(email) == null) {
+				return new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
+			}
+			
 			return new ResponseEntity<>(user, HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 
 		}
 	}
@@ -90,9 +107,15 @@ public class UserController {
 	public Object getAll() {
 		try {
 			List<User> users = userDao.findAll();
+			
+			if(users.isEmpty()) {
+				return new ResponseEntity<>("No data available.", HttpStatus.NOT_FOUND);
+			}
+			
 			return new ResponseEntity<>(users, HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 	
@@ -103,11 +126,18 @@ public class UserController {
 			User user = userDao.findById(userId);
 			List<User> nearUsers = userDao.findNear(user.getId(), user.getPrefLocalLat(), user.getPrefLocalLon(),
 					user.getPrefLocalRadius());
-			List<NearUser> users = nearUsers.stream().map(p -> new NearUser(p.getId(), p.getUsername(),
+			
+			if(nearUsers.isEmpty()) {
+				return new ResponseEntity<>("No data available.", HttpStatus.NOT_FOUND);
+			}
+			
+			List<VisibleUser> users = nearUsers.stream().map(p -> new VisibleUser(p.getId(), p.getUsername(),
 					p.getPrefLocalLat(), p.getPrefLocalLon(), p.getPrefLocalRadius())).collect(Collectors.toList());
+			
 			return new ResponseEntity<>(users, HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex.toString(), HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex.toString(), HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -116,12 +146,19 @@ public class UserController {
 	public Object updateAccount(long id, String email, String name) {
 		try {
 			User user = userDao.findOne(id);
+			
+			if(user == null) {
+				return new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
+			}
+			
 			user.setEmail(email);
 			user.setUsername(name);
 			userDao.save(user);
-			return new ResponseEntity<>(user, HttpStatus.OK);
+			
+			return new ResponseEntity<>(HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Error updating the user: " + ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -130,14 +167,20 @@ public class UserController {
 	public Object setPrefsLocal(long id, double radius, double lon, double lat) {
 		try {
 			User user = userDao.findOne(id);
+			
+			if(user == null) {
+				return new ResponseEntity<>("User does not exist", HttpStatus.NOT_FOUND);
+			}
+			
 			user.setPrefLocalRadius(radius);
 			user.setPrefLocalLat(lat);
 			user.setPrefLocalLon(lon);
 			userDao.save(user);
+			
 			return new ResponseEntity<>(HttpStatus.OK);
 
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Error deletupdating the user: " + ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 
 		}
 	}
@@ -154,11 +197,11 @@ public class UserController {
 				userDao.save(user);
 				return new ResponseEntity<>(HttpStatus.OK);
 			}else{
-				return new ResponseEntity<>(passReq.password + " " + passReq.newpassword, HttpStatus.BAD_REQUEST);
+				return new ResponseEntity<>(/*passReq.password + " " + passReq.newpassword,*/ HttpStatus.BAD_REQUEST);
 			}
 
 		} catch (Exception ex) {
-			return new ResponseEntity<>("Some error occured: " + ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -167,12 +210,18 @@ public class UserController {
 	public Object topBookCount() {
 		try {
 			List<User> topusers = userDao.findTop5ByOrderByBookCountDesc();
-			List<NearUser> users = topusers.stream()
-					.map(p -> new NearUser(p.getId(), p.getUsername(), p.getBookCount())).collect(Collectors.toList());
+			
+			if(topusers.isEmpty()) {
+				return new ResponseEntity<>("No data available.", HttpStatus.NOT_FOUND);
+			}
+			
+			List<VisibleUser> users = topusers.stream()
+					.map(p -> new VisibleUser(p.getId(), p.getUsername(), p.getBookCount())).collect(Collectors.toList());
 
 			return new ResponseEntity<>(users, HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 }

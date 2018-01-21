@@ -1,6 +1,6 @@
 package bookland.models;
 
-public class NearUser {
+public class VisibleUser {
 	private long id;
 	private String username;
 	private int bookCount;
@@ -8,12 +8,12 @@ public class NearUser {
 	private double prefLocalLon;
 	private double prefLocalRadius;
 
-	public NearUser(long id, String username) {
+	public VisibleUser(long id, String username) {
 		this.id = id;
 		this.username = username;
 	}
 
-	public NearUser(long id, String username, double lat, double lon, double radius) {
+	public VisibleUser(long id, String username, double lat, double lon, double radius) {
 		super();
 		this.id = id;
 		this.username = username;
@@ -22,7 +22,7 @@ public class NearUser {
 		this.prefLocalRadius = radius;
 		this.bookCount = 0;
 	}
-	public NearUser(long id, String username, int bookCount){
+	public VisibleUser(long id, String username, int bookCount){
 		super();
 		this.id = id;
 		this.username = username;

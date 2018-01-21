@@ -20,6 +20,7 @@ import bookland.dao.TransactionDao;
 import bookland.dao.UserDao;
 import bookland.models.Book;
 import bookland.models.Message;
+import bookland.models.TransStatus;
 import bookland.models.Transaction;
 import bookland.models.User;
 import io.jsonwebtoken.Claims;
@@ -45,9 +46,15 @@ public class TransactionController {
 	public Object getAll(long userId) {
 		try {
 			List<Transaction> trans = transDao.findActive(userId);
+			
+			if(trans.isEmpty()) {
+				return new ResponseEntity<>("No data available.", HttpStatus.NOT_FOUND);
+			}
+			
 			return new ResponseEntity<>(trans, HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -56,9 +63,15 @@ public class TransactionController {
 	public Object getHistory(long userId) {
 		try {
 			List<Transaction> trans = transDao.findArchived(userId);
+			
+			if(trans.isEmpty()) {
+				return new ResponseEntity<>("No data available.", HttpStatus.NOT_FOUND);
+			}
+			
 			return new ResponseEntity<>(trans, HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -67,40 +80,55 @@ public class TransactionController {
 	public Object get(long transId) {
 		try {
 			Transaction trans = transDao.findById(transId);
+			
+			if(trans == null) {
+				return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+			}
+			
 			return new ResponseEntity<>(trans, HttpStatus.OK);
+			
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
-
+	
+	// the user reports the desire to borrow book
 	@RequestMapping("/init")
 	@ResponseBody
 	public Object init(long bookId, long userId) {
 		try {
-			Transaction check = transDao.findByUserIdAndBookId(userId, bookId);
-
-			if (check == null) {
+//			Transaction check = transDao.findByUserIdAndBookId(userId, bookId);
+//
+//			if (check == null) {
 				Book book = bookDao.findById(bookId);
 				User owner = userDao.findById(book.getOwnerId());
 				User user = userDao.findById(userId);
+				
+				if(book == null || user == null) {
+					return new ResponseEntity<>("User or Book does not exist.", HttpStatus.NOT_FOUND);
+				}
+				
 				Transaction trans = new Transaction(book.getOwnerId(), userId, bookId, owner.getUsername(),
 						user.getUsername(), book.getTitle(), book.getAuthor());
+				System.out.println(book.getOwnerId()+" "+userId+" "+bookId+" "+owner.getUsername()+" "+user.getUsername()+" "+book.getTitle()+" "+book.getAuthor()+" "+trans.getStatus());
 				transDao.save(trans);
+				
 				return new ResponseEntity<>(trans, HttpStatus.OK);
-			} else {
-				return new ResponseEntity<>(HttpStatus.OK);
-			}
+//			} else {
+//				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+//			}
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
+	// owner agrees to borrow book; messaging enabled
 	@RequestMapping("/accept")
 	@ResponseBody
 	public Object accept(long transId) {
 		try {
 			Transaction trans = transDao.findById(transId);
-			trans.setStatus(2);
+			trans.setStatus(TransStatus.ACCEPTED);
 			trans.setMessaging(true);
 			transDao.save(trans);
 
@@ -109,17 +137,18 @@ public class TransactionController {
 			bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
+	// user reports book collection; counting time start
 	@RequestMapping("/confirm")
 	@ResponseBody
 	public Object confirm(long transId) {
 		try {
 			Transaction trans = transDao.findById(transId);
 			Date today = new Date();
-			trans.setStatus(3);
+			trans.setStatus(TransStatus.RELEASED);
 			trans.setBegDate(today);
 			// try to use this later:
 			// LocalDateTime.from(dt.toInstant()).plusDays(1);
@@ -132,16 +161,17 @@ public class TransactionController {
 			// bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
+	// owner reports book collection; counting time stops
 	@RequestMapping("/finalize")
 	@ResponseBody
 	public Object finalize(long transId) {
 		try {
 			Transaction trans = transDao.findById(transId);
-			trans.setStatus(4);
+			trans.setStatus(TransStatus.RETURNED);
 			transDao.save(trans);
 
 			Book book = bookDao.findById(trans.getBookId());
@@ -149,16 +179,17 @@ public class TransactionController {
 			bookDao.save(book);
 			return new ResponseEntity<>(trans, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
+	// owner and user leave feedback
 	@RequestMapping("/close")
 	@ResponseBody
 	public Object close(long transId, String feedback, int rate, boolean owner) {
 		try {
 			Transaction trans = transDao.findById(transId);
-			if (trans.getStatus() != 5) {
+			if (trans.getStatus() != TransStatus.CLOSED) {
 				if (owner) {
 					trans.setOwnerSummary(feedback);
 					trans.setOwnerRate(rate);
@@ -173,17 +204,18 @@ public class TransactionController {
 					userDao.save(bookOwner);
 				}
 				if (trans.getOwnerRate() != 0 && trans.getUserRate() != 0) {
-					trans.setStatus(5);
+					trans.setStatus(TransStatus.CLOSED);
 				}
 			}
 
 			transDao.save(trans);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
+	// owner rejects borrowing proposition
 	@RequestMapping("/reject")
 	@ResponseBody
 	public Object reject(long transId) {
@@ -192,10 +224,11 @@ public class TransactionController {
 			transDao.delete(trans);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
+	// send message to party of transaction
 	@RequestMapping("/contact")
 	@ResponseBody
 	public Object contact(long transId, long userId, String message) {
@@ -205,7 +238,7 @@ public class TransactionController {
 			messDao.save(mess);
 			return new ResponseEntity<>(mess, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -216,7 +249,7 @@ public class TransactionController {
 			List<Message> messages = messDao.findByTransId(transId);
 			return new ResponseEntity<>(messages, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 
@@ -238,7 +271,7 @@ public class TransactionController {
 
 			return new ResponseEntity<>(mess, HttpStatus.OK);
 		} catch (Exception ex) {
-			return new ResponseEntity<>(ex, HttpStatus.NOT_FOUND);
+			return new ResponseEntity<>(ex, HttpStatus.BAD_REQUEST);
 		}
 	}
 }

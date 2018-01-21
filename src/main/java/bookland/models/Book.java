@@ -23,22 +23,12 @@ public class Book {
 	@Column(name = "book_id")
 	@GeneratedValue(strategy = GenerationType.AUTO)
 	private long id;
-	
-//	@NotNull
-//	@ManyToOne/*(fetch = FetchType.LAZY)*/
-//	@JoinColumn(name = "owner_id")
-////	@JsonBackReference
-//	private User owner;
 
-//	@NotNull
-//	@ManyToOne/*(fetch = FetchType.LAZY)*/
-//	@JoinColumn(name = "user_id")
-////	@JsonBackReference
-//	private User user;
-
+	@NotNull
 	@Column(name = "owner_id")
 	private Long ownerId;
 	
+	@NotNull
 	@Column(name = "user_id")
 	private Long userId;
 	

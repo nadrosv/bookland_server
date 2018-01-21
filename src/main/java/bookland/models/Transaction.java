@@ -26,21 +26,13 @@ public class Transaction {
 	private long id;
 
 	@Column(name = "status")
-	private int status;
-
-//	@ManyToOne/*(fetch = FetchType.LAZY)*/
-//	@JoinColumn(name = "owner_id")
-//	@JsonBackReference
-//	private User owner;
-//	
-//	@ManyToOne/*(fetch = FetchType.LAZY)*/
-//	@JoinColumn(name = "user_id")
-//	@JsonBackReference
-//	private User user;
+	private TransStatus status;
+//	private int status;
 	
+	@NotNull
 	@Column(name = "owner_id")
 	private long ownerId;
-
+	@NotNull
 	@Column(name = "user_id")
 	private long userId;
 
@@ -55,12 +47,8 @@ public class Transaction {
 
 	@Column(name = "author")
 	private String author;
-
-//	@ManyToOne/*(fetch = FetchType.LAZY)*/
-//	@JoinColumn(name = "book_id")
-//	@JsonBackReference
-//	private Book book;
 	
+	@NotNull
 	@Column(name = "book_id")
 	private long bookId;
 
@@ -70,11 +58,9 @@ public class Transaction {
 	@Column(name = "end_date")
 	private Date endDate;
 
-	@NotNull
 	@Column(name = "owner_rate")
 	private int ownerRate;
 
-	@NotNull
 	@Column(name = "user_rate")
 	private int userRate;
 
@@ -89,7 +75,8 @@ public class Transaction {
 
 	public Transaction(long ownerId, long userId, long bookId) {
 		super();
-		this.status = 1;
+		this.status = TransStatus.INITIATED;
+//		this.status = 1;
 		this.ownerId = ownerId;
 		this.userId = userId;
 		this.bookId = bookId;
@@ -105,10 +92,11 @@ public class Transaction {
 	public Transaction(long ownerId, long userId, long bookId, String ownerName, String userName, String title,
 			String author) {
 		super();
-		this.status = 1;
-//		this.ownerId = ownerId;
-//		this.userId = userId;
-//		this.bookId = bookId;
+		this.status = TransStatus.INITIATED;
+//		this.status = 1;
+		this.ownerId = ownerId;
+		this.userId = userId;
+		this.bookId = bookId;
 		this.title = title;
 		this.author = author;
 		this.ownerName = ownerName;
@@ -138,11 +126,11 @@ public class Transaction {
 		this.id = id;
 	}
 
-	public int getStatus() {
+	public TransStatus getStatus() {
 		return status;
 	}
 
-	public void setStatus(int status) {
+	public void setStatus(TransStatus status) {
 		this.status = status;
 	}
 

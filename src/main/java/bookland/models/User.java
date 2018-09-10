@@ -50,10 +50,10 @@ public class User {
 
 	@NotNull
 	private String password;
-
+//
 	@Column(name = "rate_pos")
 	private int ratePos;
-
+//
 	@Column(name = "rate_neg")
 	private int rateNeg;
 
@@ -101,10 +101,11 @@ public class User {
 		this.password = password;
 		this.lastUpdate = new Timestamp(System.currentTimeMillis());
 		this.bookCount = 0;
-
+//
 		this.rateNeg = 0;
 		this.ratePos = 0;
-		this.reputation = -1;
+		
+		this.reputation = 0;
 
 		this.prefLocalLat = 0;
 		this.prefLocalLon = 0;
@@ -119,16 +120,16 @@ public class User {
 
 	public void vote(int rate) {
 		if (rate != 0) {
-			setRatePos(getRatePos() + 1);
+			setReputation((getReputation()+rate)/2);
 		} else {
-			setRateNeg(getRateNeg() + 1);
+			setReputation(rate);
 		}
 		
-		if (getRatePos() != 0 && getRateNeg() != 0) {
-			setReputation((100 * ratePos) / (ratePos + rateNeg));
-		}else if(getRatePos() == 0){
-			setReputation(0);
-		}
+//		if (getRatePos() != 0 && getRateNeg() != 0) {
+//			setReputation((100 * ratePos) / (ratePos + rateNeg));
+//		}else if(getRatePos() == 0){
+//			setReputation(0);
+//		}
 	}
 
 	public void setId(Long value) {
@@ -158,19 +159,19 @@ public class User {
 	public void setPassword(String password) {
 		this.password = password;
 	}
-
+//
 	public int getRatePos() {
 		return ratePos;
 	}
-
+//
 	public void setRatePos(int ratePos) {
 		this.ratePos = ratePos;
 	}
-
+//
 	public int getRateNeg() {
 		return rateNeg;
 	}
-
+//
 	public void setRateNeg(int rateNeg) {
 		this.rateNeg = rateNeg;
 	}
